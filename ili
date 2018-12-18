@@ -1,0 +1,102 @@
+INSTALACE
+
+1. v /etc/apt/sources.list
+deb http://deb.debian.org/debian stretch main
+deb-src http://deb.debian.org/debian stretch main
+
+deb http://deb.debian.org/debian-security/ stretch/updates main
+deb-src http://deb.debian.org/debian-security/ stretch/updates main
+
+deb http://deb.debian.org/debian stretch-updates main
+deb-src http://deb.debian.org/debian stretch-updates main
+
+2. apt install sudo
+3. visudo - zmenit sudo na jmeno uzivatele
+
+4. /etc/network/interfaces:
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+auto enp0s3
+iface enp0s3 inet static
+        network 10.0.2.0
+        address 10.0.2.7
+        netmask 255.255.255.0
+        broadcast 10.0.2.255
+        gateway 10.0.2.1
+        dns 8.8.8.8
+
+auto enp0s8
+iface enp0s8 inet static
+        address 192.168.56.2
+        netmask 255.255.255.0
+
+5./etc/resolv.conf:
+nameserver 8.8.8.8
+
+6. sudo apt install openssh-server
+
+
+REBOOT AFTER INTERFACE IP CHANGE ON 2. VM
+
+
+CLUSTERS:
+//both nodes
+names...., edit /etc/hosts
+apt install pacemaker pcs psmisc policycoreutils-python-utils
+firewall-cmd --permanent --add-service=high-availability
+firewall-cmd --reload
+systemctl start pcsd.service
+systemctl enable pcsd.service
+passwd hacluster
+systemctl stop corosync.service
+rm /etc/corosync/corosync.conf
+
+//one node
+sudo pcs cluster auth deb3 deb2
+pcs cluster setup --name mycluster deb2 deb3 --force
+
+//both nodes
+systemctl start corosync.service
+systemctl enable corosync.service
+systemctl start pacemaker.service
+systemctl enable pacemaker.service
+
+
+//one node
+pcs property set stonith-enabled=false
+
+IP ADDRESS SHARING
+pcs resource create ClusterIP ocf:heartbeat:IPaddr2 ip=192.168.56.4 cidr_netmask=32 op monitor interval=30s
+pcs resource defaults resource-stickiness=100
+
+
+    2. Create HTTP server which will work as a service
+        debian both nodes:
+        apt install apache2 wget
+        //both nodes
+firewall-cmd --permanent --add-service=http
+    firewall-cmd --reload
+//one node
+ apache2 je zase vec debianu
+sudo pcs resource create WebSite ocf:heartbeat:apache configfile=/etc/apache2/apache2.conf statusurl="http://localhost/server-status" op monitor interval=1min
+        pcs resource op defaults timeout=240s
+        pcs constraint colocation add WebSite with ClusterIP INFINITY
+pcs constraint order ClusterIP then WebSite
+
+        1. web pages should contain the name of node
+add pages to /var/www/html/index.html on each node
+
+        2. HTTP server will be accessible from your laptop
+        3. In a browser you should use same approach to get to web page
+           even if you don't have on which node it is currently running.
+            use the shared IP to get to the page
+
+
+
