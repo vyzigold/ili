@@ -1,0 +1,124 @@
+su
+
+1. v /etc/apt/sources.list
+deb http://deb.debian.org/debian stretch main
+deb-src http://deb.debian.org/debian stretch main
+
+deb http://deb.debian.org/debian-security/ stretch/updates main
+deb-src http://deb.debian.org/debian-security/ stretch/updates main
+
+deb http://deb.debian.org/debian stretch-updates main
+deb-src http://deb.debian.org/debian stretch-updates main
+
+
+
+apt update
+apt install git
+
+git clone https://github.com/vyzigold/ili.git
+
+./install.sh
+
+poweroff
+
+clone
+nastartovat dalsi
+hostnamectl set-hostname name
+v interfaces predelat ip
+predelat hosts
+systemctl restart networking
+
+nastartovat prvni
+hostnamectl set-hostname name
+predelat hosts
+systemctl restart networking
+
+restart vseho?
+
+CLUSTER
+//both nodes
+./init_cluster.sh
+passwd hacluster
+
+//one node
+pcs cluster auth deb3 deb2
+pcs cluster setup --name mycluster deb2 deb3 --force
+
+//both nodes
+./init_cluster2.sh
+
+//one node
+pcs property set stonith-enabled=false
+
+IP SHARE (192.168.56.10) (one node)
+./ip_share.sh
+
+
+
+CLUSTER APACHE
+//both
+./clust_apache1_both.sh
+
+//one
+pcs cluster auth deb3 deb2
+./clust_apache2_one.sh
+
+
+
+
+ISCSI
+apt install tgt cryptsetup targetcli-fb
+
+fallocate -l 500M disk
+losetup -f disk
+losetup -a
+
+cryptsetup -y -v luksFormat /dev/loop0
+
+targetcli:
+
+cd backstores/block
+create iscsivolume1 /dev/loop0
+
+cd /iscsi
+create iqn.2005-03.org.open-iscsi.servername:iscsivolumea
+
+cd luns
+create /backstores/block/iscsivolume1
+
+cd ../acls
+iqn.2005-03.org.open-iscsi.clientname:deb1
+iqn.2005-03.org.open-iscsi.clientname:deb2
+
+cd ../portals
+create ip_address=192.168.56.2 ip_port=3261
+create ip_address=192.168.56.3 ip_port=3261
+
+exit
+
+//both
+firewall-cmd --permanent --add-port=3261/tcp
+firewall-cmd --reload
+
+//back on that one
+systemctl start tgt
+systemctl enable tgt
+
+//the other one
+./iscsi_initiator_conf.sh //enabeling muze hodit chybu, v poradku
+
+iscsiadm --mode node --targetname iqn.2005-03.org.open-iscsi.servername:iscsivolumea --portal 192.168.56.2:3261 --login //ipina toho druheho
+
+apt install cryptsetup
+cryptsetup luksOpen /dev/sdb backup
+mkfs... /dev/mapper/backup
+mount /dev/mapper/backup /mnt/...
+
+
+
+
+BTRFS
+apt install btrfs-tools
+mkfs.btrfs /dev/.....
+
+

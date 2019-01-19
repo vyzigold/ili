@@ -1,3 +1,5 @@
 #ip     hostname.domainname     hostname
+127.0.0.1   localhost
+
 192.168.56.3    deb3.ili    deb3
 192.168.56.2    deb2.ili    deb2
