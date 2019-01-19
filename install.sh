@@ -6,7 +6,7 @@ systemctl enable firewalld
 apt-get install selinux-basics selinux-policy-default auditd
 selinux-activate
 
-mv interfaces /etc/interfaces
+mv interfaces /etc/network/interfaces
 
 mv resolv.conf /etc/resolv.conf
 
