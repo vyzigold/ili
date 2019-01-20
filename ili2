@@ -24,7 +24,7 @@ poweroff
 clone
 nastartovat dalsi
 hostnamectl set-hostname name
-v interfaces predelat ip
+v interfaces predelat ip (nakopirovat interfaces2)
 predelat hosts
 systemctl restart networking
 
@@ -120,5 +120,23 @@ mount /dev/mapper/backup /mnt/...
 BTRFS
 apt install btrfs-tools
 mkfs.btrfs /dev/.....
+
+
+
+ZRDCADLENÍ
+apt install mdadm
+fallocate -l 200M d1
+fallocate -l 200M d2
+losetup -f d1
+losetup -f d2
+losetup -l
+
+
+NAHOZENI LOOPBACKU
+prekopirovat loopback@.service do /etc/systemd/system
+prepsat v loopback@.service cestu, WantedBy (pripadne vymyslet, aby se mapovaly vzdy stejne) - losetup /dev/loop0 %I
+
+systemctl enable loopback@d1.service
+
 
 
