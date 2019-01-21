@@ -3,4 +3,4 @@ Description=LoopbackStart
 [Service]
 ExecStart=/bin/bash -c "losetup -f /home/jarda/%I"
 [Install]
-WantedBy=mdmonitor.service
+WantedBy=multi-user.target

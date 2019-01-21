@@ -17,7 +17,7 @@ apt install git
 
 git clone https://github.com/vyzigold/ili.git
 
-./install.sh
+./install.sh <- vim
 
 poweroff
 
@@ -139,8 +139,9 @@ prepsat v loopback@.service cestu, WantedBy (pripadne vymyslet, aby se mapovaly 
 systemctl enable loopback@d1.service
 
 
-FENSING?????
+FENSCING?????
 http://manpages.ubuntu.com/manpages/bionic/man5/gfs2.5.html
+https://www.linuxtechi.com/configure-nfs-server-clustering-pacemaker-centos-7-rhel-7/
 
 
 
