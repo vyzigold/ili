@@ -139,4 +139,12 @@ prepsat v loopback@.service cestu, WantedBy (pripadne vymyslet, aby se mapovaly 
 systemctl enable loopback@d1.service
 
 
+FENSING?????
+http://manpages.ubuntu.com/manpages/bionic/man5/gfs2.5.html
+
+
+
+NFS???
+https://www.howtoforge.com/tutorial/setting-up-an-nfs-server-and-client-on-centos-7/
+
 
